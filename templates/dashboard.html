@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Monitorowania Usług Chmurowych</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="topbar">
+            <div>
+                <h1>{{ service_name }}</h1>
+                <p class="subtitle">System monitorowania dostępności i telemetrii węzła chmurowego</p>
+            </div>
+            <div class="header-actions">
+                <span id="statusBadge" class="badge badge-ok">STATUS: OK</span>
+                <button id="checkNowBtn" class="btn btn-primary">Wykonaj pomiar (/health)</button>
+                <label class="toggle-label">
+                    <input type="checkbox" id="autoRefreshToggle" checked>
+                    Auto-odświeżanie (10s)
+                </label>
+            </div>
+        </header>
+
+        <section class="kpi-grid">
+            <div class="card kpi-card">
+                <span class="kpi-label">Dostępność (SLA)</span>
+                <strong id="kpiAvailability" class="kpi-value">100%</strong>
+                <span id="kpiChecks" class="kpi-sub">0 / 0 pomiarów OK</span>
+            </div>
+            <div class="card kpi-card">
+                <span class="kpi-label">Średni czas naprawy (MTTR)</span>
+                <strong id="kpiMttr" class="kpi-value">0 s</strong>
+                <span id="kpiIncidents" class="kpi-sub">Incydenty: 0 (aktywne: 0)</span>
+            </div>
+            <div class="card kpi-card">
+                <span class="kpi-label">Średnia latencja</span>
+                <strong id="kpiLatency" class="kpi-value">0 ms</strong>
+                <span class="kpi-sub">Czas odpowiedzi /health</span>
+            </div>
+            <div class="card kpi-card">
+                <span class="kpi-label">Aktualne zasoby</span>
+                <div class="resource-bars">
+                    <div class="bar-row">
+                        <span>CPU</span>
+                        <div class="bar-track"><div id="barCpu" class="bar-fill"></div></div>
+                        <span id="valCpu">0%</span>
+                    </div>
+                    <div class="bar-row">
+                        <span>RAM</span>
+                        <div class="bar-track"><div id="barRam" class="bar-fill"></div></div>
+                        <span id="valRam">0%</span>
+                    </div>
+                    <div class="bar-row">
+                        <span>Dysk</span>
+                        <div class="bar-track"><div id="barDisk" class="bar-fill"></div></div>
+                        <span id="valDisk">0%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="charts-grid">
+            <div class="card">
+                <h2>Zużycie zasobów sprzętowych (%)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="resourcesChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Czas odpowiedzi punktu /health (ms)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="latencyChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="card control-panel">
+            <h2>Panel symulacji awarii i testów dostępności</h2>
+            <div class="control-grid">
+                <div class="field">
+                    <label for="apiKeyInput">Klucz autoryzacyjny (X-API-Key)</label>
+                    <input type="password" id="apiKeyInput" placeholder="Wpisz klucz API">
+                </div>
+                <div class="field">
+                    <label for="reasonInput">Opis symulowanego incydentu</label>
+                    <input type="text" id="reasonInput" value="Kontrolowana symulacja awarii węzła">
+                </div>
+                <div class="control-buttons">
+                    <button id="breakBtn" class="btn btn-danger">Symuluj awarię (/break)</button>
+                    <button id="fixBtn" class="btn btn-success">Przywróć system (/fix)</button>
+                </div>
+            </div>
+            <div id="actionFeedback" class="feedback"></div>
+        </section>
+
+        <section class="tables-grid">
+            <div class="card">
+                <h2>Rejestr incydentów</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Rozpoczęcie</th>
+                                <th>Zakończenie</th>
+                                <th>Czas (s)</th>
+                                <th>Przyczyna</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incidentsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Ostatnie pomiary telemetrii</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Czas</th>
+                                <th>Status</th>
+                                <th>Kod</th>
+                                <th>CPU</th>
+                                <th>RAM</th>
+                                <th>Dysk</th>
+                                <th>Latencja</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
